@@ -16,18 +16,18 @@ export default function VociItem({ voci }: Props) {
 
 const styles = StyleSheet.create({
   VociItem: {
-    backgroundColor: "#fff",
+    backgroundColor: "#722F37",
     padding: 16,
     marginVertical: 8,
     borderRadius: 8,
     width: "90%",
-    shadowColor: "#bf5151",
+    shadowColor: "#fff",
     shadowOffset: { width: 2, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 4,
   },
   VociItemText: {
     fontSize: 16,
-    color: "#000",
+    color: "#fff",
   },
 });

@@ -1,9 +1,13 @@
-import { FlatList, Text, View, StyleSheet } from "react-native";
+import { FlatList, Text, View, StyleSheet, Pressable } from "react-native";
 import Voci from "../models/voci";
 import VociItem from "../components/VociItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useRouter } from "expo-router";
+import { useVoci } from "../context/vociContext";
 
 export default function Index() {
+  const router = useRouter();
+  const { vociList } = useVoci();
   return (
     <View style={styles.container}>
       <Text style={styles.text}>VocZLI</Text>
@@ -19,6 +23,9 @@ export default function Index() {
           </View>
         )}
       />
+      <Pressable onPress={() => router.push("/learn")} style={ ({ pressed }) => [styles.fab, { opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.93 : 1 }] }] }>
+        <Ionicons name="play-outline" size={24} color="#fff" />
+      </Pressable>
     </View>
   );
 }
@@ -39,48 +46,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     marginTop: 8,
+  },
+  fab: {
+    backgroundColor: "#722F37",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#fff",
+    shadowOffset: { width: 2, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 4,
   }
 });
-
-const vociList: Voci[] = [
-  {
-    term: "Haus",
-    translation: "house",
-    imageUri: "https://example.com/house.png",
-  },
-  {
-    term: "Baum",
-    translation: "tree",
-    imageUri: "https://example.com/tree.png",
-  },
-  {
-    term: "Auto",
-    translation: "car",
-    imageUri: "https://example.com/car.png",
-  },
-  {
-    term: "Katze",
-    translation: "cat",
-    imageUri: "https://example.com/cat.png",
-  },
-  {
-    term: "Hund",
-    translation: "dog",
-    imageUri: "https://example.com/dog.png",
-  },
-  {
-    term: "Vogel",
-    translation: "bird",
-    imageUri: "https://example.com/bird.png",
-  },
-  {
-    term: "Flasche",
-    translation: "bottle",
-    imageUri: "https://example.com/bottle.png",
-  },
-  {
-    term: "Buch",
-    translation: "book",
-    imageUri: "https://example.com/book.png",
-  }
-];
