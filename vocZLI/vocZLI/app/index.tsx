@@ -1,4 +1,4 @@
-import { FlatList, Text, View, StyleSheet, Pressable } from "react-native";
+import { FlatList, Text, View, StyleSheet, Pressable, ActivityIndicator } from "react-native";
 import Voci from "../models/voci";
 import VociItem from "../components/VociItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -7,25 +7,31 @@ import { useVoci } from "../context/vociContext";
 
 export default function Index() {
   const router = useRouter();
-  const { vociList } = useVoci();
+  const { vociList, isLoading } = useVoci();
   return (
     <View style={styles.container}>
       <Text style={styles.text}>VocZLI</Text>
       <Text style={styles.subtitle}>Meine Vokabel-Lern-App</Text>
-      <FlatList
-        data={vociList}
-        keyExtractor={(item) => item.term}
-        renderItem={({ item }) => <VociItem voci={item} />}
-        ListEmptyComponent={() => (
-          <View style={ styles.container }>
-            <Text style={styles.text}>Keine Vokabeln vorhanden</Text>
-            <Ionicons name="sad-outline" size={32} color="#fff"/>
-          </View>
-        )}
-      />
-      <Pressable onPress={() => router.push("/learn")} style={ ({ pressed }) => [styles.fab, { opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.93 : 1 }] }] }>
-        <Ionicons name="play-outline" size={24} color="#fff" />
-      </Pressable>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />
+      ) : (
+        <>
+          <FlatList
+            data={vociList}
+            keyExtractor={(item) => item.term}
+            renderItem={({ item }) => <VociItem voci={item} />}
+            ListEmptyComponent={() => (
+              <View style={styles.empty}>
+                <Text style={styles.emptyText}>Keine Vokabeln vorhanden</Text>
+                <Ionicons name="sad-outline" size={32} color="#fff" />
+              </View>
+            )} 
+          />
+          <Pressable onPress={() => router.push("/learn")} style={({ pressed }) => [styles.fab, { opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.93 : 1 }] }]}>
+            <Ionicons name="play-outline" size={24} color="#fff" />
+          </Pressable>
+        </>
+      )}
     </View>
   );
 }
@@ -61,5 +67,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 4,
-  }
+  },
+  empty: {
+    marginTop: 32,
+    alignItems: "center",
+    gap: 12,
+  },
+  emptyText: {
+    color: "#888",
+    fontSize: 16,
+  },
 });

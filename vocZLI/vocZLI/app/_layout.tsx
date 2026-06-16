@@ -44,7 +44,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
-          name="editVoci/[term]"
+          name="editVoci"
           options={{
             title: "Vokabel bearbeiten",
           }}

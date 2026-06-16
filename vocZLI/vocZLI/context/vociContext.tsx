@@ -1,8 +1,11 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Voci from '../models/voci';
+import { ActivityIndicator } from 'react-native';
 
 interface VociContextType {
   vociList: Voci[];
+  isLoading: boolean;
   addVoci: (voci: Voci) => void;
   updateVoci: (term: string, updatedVoci: Voci) => void;
   removeVoci: (term: string) => void;
@@ -22,6 +25,40 @@ export function VociProvider({ children }: { children: ReactNode }) {
     {term: "Buch", translation: "book", imageUri: "https://example.com/book.png"},
   ]);
 
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadVoci = async () => {
+      try {
+        const json = await AsyncStorage.getItem('vocis');
+        if (json!== null) {
+          setVociList(JSON.parse(json));
+          console.log("Vocis geladen:");
+        }
+      } catch (error) {
+        console.error("Fehler beim Laden der Vocis:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadVoci();
+  }, []);
+
+  useEffect(() => {
+    const saveVoci = async () => {
+      try {
+        const json = JSON.stringify(vociList);
+        await AsyncStorage.setItem('vocis', json);
+        console.log("Vocis gespeichert:", json);
+      } catch (error) {
+        console.error("Fehler beim Speichern der Vocis:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    saveVoci();
+  }, [vociList]);
+
   function addVoci(voci: Voci) {
     setVociList((prevList) => [...prevList, voci]);
   }
@@ -35,7 +72,7 @@ export function VociProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <VociContext.Provider value={{ vociList, addVoci, updateVoci, removeVoci }}>
+    <VociContext.Provider value={{ vociList, isLoading, addVoci, updateVoci, removeVoci }}>
       {children}
     </VociContext.Provider>
   );
