@@ -4,23 +4,36 @@ import { View, Text, TextInput, StyleSheet, Alert, Pressable } from "react-nativ
 
 interface VociDetailsProps {
   onSave: (voci: Voci) => void;
+  onDelete?: (term: string) => void;
+  onCancel?: () => void;
+  initialVoci?: Voci;
 };
 
-export default function VociDetail({ onSave }: VociDetailsProps) {
-  const [term, setTerm] = useState("");
-  const [translation, setTranslation] = useState("");
+export default function VociDetail({ onSave, onDelete, onCancel, initialVoci }: VociDetailsProps) {
+  const [term, setTerm] = useState(initialVoci?.term || "");
+  const [translation, setTranslation] = useState(initialVoci?.translation || "");
+  
+  const isEditMode = initialVoci !== undefined;
 
   const handleSave = () => {
     if (term.trim() === '' || translation.trim() === '') {
       Alert.alert('Fehler', 'Begriff und Übersetzung dürfen nicht leer sein.');
-    return;
+      return;
     } else {
-      const newVoci: Voci = { term, translation };
+      const newVoci: Voci = { term: term.trim(), translation: translation.trim() };
       onSave(newVoci);
-      setTerm("");
-      setTranslation("");
+      if (!isEditMode) {
+        setTerm("");
+        setTranslation("");
+      }
     }
   };  
+  const handleDelete = () => {
+    Alert.alert("Löschen bestätigen", "Möchten Sie diese Vokabel wirklich löschen?", [
+        { text: 'Abbrechen', style: 'cancel' },
+        { text: 'Löschen', style: 'destructive', onPress: () => onDelete?.(term) },
+    ]);
+  }
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
     <TextInput
@@ -40,7 +53,17 @@ export default function VociDetail({ onSave }: VociDetailsProps) {
     <Pressable onPress={handleSave} style={ ({ pressed }) => [styles.fab, { opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.93 : 1 }] }] }>
       <Text style={styles.fabText}>Speichern</Text>
     </Pressable>
-   </View>
+    {isEditMode && (
+      <>
+        <Pressable onPress={onCancel} style={ ({ pressed }) => [styles.fab, { opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.93 : 1 }] }] }>
+          <Text style={styles.fabText}>Abbrechen</Text>
+        </Pressable>
+        <Pressable onPress={handleDelete} style={ ({ pressed }) => [styles.fab, { opacity: pressed ? 0.7 : 1, transform: [{ scale: pressed ? 0.93 : 1 }] }] }>
+          <Text style={styles.fabText}>Löschen</Text>
+        </Pressable>
+      </>
+    )}
+  </View>
   );
 };
 
@@ -54,12 +77,11 @@ const styles = StyleSheet.create({
     },
     fab: {
         backgroundColor: "#722F37",
-        position: "absolute",
-        bottom: 20,
+        marginTop: 12,
         right: 20,
-        width: 60,
+        width: 180,
         height: 60,
-        borderRadius: 30,
+        borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
         shadowColor: "#fff",

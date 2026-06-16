@@ -24,7 +24,7 @@ export function VociProvider({ children }: { children: ReactNode }) {
 
   function addVoci(voci: Voci) {
     setVociList((prevList) => [...prevList, voci]);
-}
+  }
 
   function updateVoci(term: string, updatedVoci: Voci) {
     setVociList((prevList) => prevList.map((v) => (v.term === term ? updatedVoci : v)));
