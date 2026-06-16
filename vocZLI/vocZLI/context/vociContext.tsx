@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Voci from '../models/voci';
-import { ActivityIndicator } from 'react-native';
+import * as FileSystem from "expo-file-system/legacy"
 
 interface VociContextType {
   vociList: Voci[];
@@ -11,18 +11,29 @@ interface VociContextType {
   removeVoci: (term: string) => void;
 }
 
+const deleteImageFile = async (uri?: string) => {
+  if (!uri || !uri.startsWith(FileSystem.documentDirectory!)) {
+    return;
+  }
+  try {
+    await FileSystem.deleteAsync(uri, { idempotent: true });
+  } catch (error) {
+    console.error("Fehler beim löschen des Bildes:", error);
+  }
+}
+
 const VociContext = createContext<VociContextType | undefined>(undefined);
 
 export function VociProvider({ children }: { children: ReactNode }) {
   const [vociList, setVociList] = useState<Voci[]>([
-    {term: "Haus", translation: "house", imageUri: "https://example.com/house.png"},
-    {term: "Baum", translation: "tree", imageUri: "https://example.com/tree.png"},
-    {term: "Auto", translation: "car", imageUri: "https://example.com/car.png"},
-    {term: "Katze", translation: "cat", imageUri: "https://example.com/cat.png"},
-    {term: "Hund", translation: "dog", imageUri: "https://example.com/dog.png"},
-    {term: "Vogel", translation: "bird", imageUri: "https://example.com/bird.png"},
-    {term: "Flasche", translation: "bottle", imageUri: "https://example.com/bottle.png"},
-    {term: "Buch", translation: "book", imageUri: "https://example.com/book.png"},
+    {term: "Haus", translation: "house", imageUri: ""},
+    {term: "Baum", translation: "tree", imageUri: ""},
+    {term: "Auto", translation: "car", imageUri: ""},
+    {term: "Katze", translation: "cat", imageUri: ""},
+    {term: "Hund", translation: "dog", imageUri: ""},
+    {term: "Vogel", translation: "bird", imageUri: ""},
+    {term: "Flasche", translation: "bottle", imageUri: ""},
+    {term: "Buch", translation: "book", imageUri: ""},
   ]);
 
   const [isLoading, setLoading] = useState(true);
@@ -64,11 +75,21 @@ export function VociProvider({ children }: { children: ReactNode }) {
   }
 
   function updateVoci(term: string, updatedVoci: Voci) {
-    setVociList((prevList) => prevList.map((v) => (v.term === term ? updatedVoci : v)));
+    setVociList((prevList) => {
+      const old = prevList.find(v => v.term === term);
+      if (old?.imageUri !== updatedVoci.imageUri) {
+        deleteImageFile(old?.imageUri);
+      }
+      return prevList.map((v) => (v.term === term ? updatedVoci : v));
+    });
   }
 
   function removeVoci(term: string) {
-    setVociList((prevList) => prevList.filter((v) => v.term !== term));
+    setVociList((prevList) => {
+      const old = prevList.find(v => v.term === term);
+      deleteImageFile(old?.imageUri);
+      return prevList.filter((v) => v.term !== term);
+    })
   }
 
   return (

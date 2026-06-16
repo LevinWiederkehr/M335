@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Voci from "../models/voci";
 import { View, Text, TextInput, StyleSheet, Alert, Pressable } from "react-native";
+import ImagePickerButton from "./ImagePickerButton";
 
 interface VociDetailsProps {
   onSave: (voci: Voci) => void;
@@ -12,6 +13,7 @@ interface VociDetailsProps {
 export default function VociDetail({ onSave, onDelete, onCancel, initialVoci }: VociDetailsProps) {
   const [term, setTerm] = useState(initialVoci?.term || "");
   const [translation, setTranslation] = useState(initialVoci?.translation || "");
+  const [imageUri, setImageUri] = useState(initialVoci?.imageUri || "")
   
   const isEditMode = initialVoci !== undefined;
 
@@ -20,11 +22,12 @@ export default function VociDetail({ onSave, onDelete, onCancel, initialVoci }: 
       Alert.alert('Fehler', 'Begriff und Übersetzung dürfen nicht leer sein.');
       return;
     } else {
-      const newVoci: Voci = { term: term.trim(), translation: translation.trim() };
+      const newVoci: Voci = { term: term.trim(), translation: translation.trim(), imageUri: imageUri };
       onSave(newVoci);
       if (!isEditMode) {
         setTerm("");
         setTranslation("");
+        setImageUri("");
       }
     }
   };  
@@ -36,6 +39,10 @@ export default function VociDetail({ onSave, onDelete, onCancel, initialVoci }: 
   }
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <ImagePickerButton 
+      imageUri={imageUri} 
+      onImageSelected={(uri) => setImageUri(uri)}
+    />  
     <TextInput
       style = {styles.input}
       placeholder="Begriff"
@@ -73,7 +80,7 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 8,
         width: "90%",
-        marginBottom: 16,
+        marginTop: 12
     },
     fab: {
         backgroundColor: "#722F37",
