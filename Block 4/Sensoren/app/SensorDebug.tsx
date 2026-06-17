@@ -56,7 +56,25 @@ export default function SensorDebugScreen() {
   };
 
   return (
-
+    <View style={styles.container}>
+      <Text style={styles.title}>Accelerometer</Text>
+      {(["x", "y", "z"] as const).map((axis) => (
+        <View key={axis} style={styles.row}>
+          <Text style={styles.label}>{axis.toUpperCase()}</Text>
+          <Text style={styles.value}>{data[axis].toFixed(3)}</Text>
+          <Bar value={data[axis]} />
+        </View>
+      ))}
+      <Pressable
+        onPress={togglePause}
+        style={({ pressed }) => [
+          styles.button,
+          { opacity: pressed ? 0.7 : 1, backgroundColor: isActive ? "#f44336" : "#4CAF50" },
+        ]}
+      >
+        <Text style={styles.buttonText}>{isActive ? "Pause" : "Resume"}</Text>
+      </Pressable>
+    </View>
   );
 };
 
